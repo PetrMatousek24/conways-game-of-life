@@ -6,32 +6,24 @@
 class Grid { 
 // Private members
 private:
-    int cellSize, rotationState;
-
+    int rows, cols;
+    int cellSize;
     // Private functions
 
 
 // Public members
 public:
-    int id;
-    int rowOffset, colOffset;
-    std::vector<int> grid;
+    std::vector<std::vector<int>> cells;
 
     // Constructor
-    Grid();
+    Grid(int width, int height, int cellSize):
+        rows(width/cellSize), cols(height/cellSize), cellSize(cellSize), cells(rows, std::vector<int>(cols, 0))
+    {}
 
     // Public functions
-    void Draw(int offsetOfX = 0, int offsetOfY = 0);
-    void Move(int rows, int columns);
-    void Rotate();
-    void UndoRotation();
-    std::vector<Vector2> GetCellPositions();
+    void Draw();
 };
 
-
-//------------------------------------------------------------------------------------
-// Constructor
-//------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------
 // Private members
@@ -41,3 +33,10 @@ public:
 //------------------------------------------------------------------------------------
 // Public interface
 //------------------------------------------------------------------------------------
+void Grid::Draw() {
+    for (int row = 0; row < rows; row++) {
+    for (int col = 0; col < cols; col++) {
+        DrawRectangle(col*cellSize, row*cellSize, cellSize-1, cellSize-1, cells[row][col] ? WHITE : BLACK);
+    }
+    }
+}

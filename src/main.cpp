@@ -1,5 +1,7 @@
 #include <raylib.h>
 
+#include "resources/grid.hpp"
+
 
 // defines --> constatns --> classes --> global variables --> functions declarations -->
 // program --> game modules definitions --> helper modules definitions
@@ -10,13 +12,17 @@
 //------------------------------------------------------------------------------------
 #define gray        (Color){32, 32, 32, 255}
 
+#define cellSize    25
+
 
 //------------------------------------------------------------------------------------
 // Global Variables Declaration
 //------------------------------------------------------------------------------------
-static const int SCREEN_HEIGHT = 1000;
-static const int SCREEN_WIDTH = 1000;
-static const int TARGETFPS = 60;
+static const int SCREEN_HEIGHT = 900;
+static const int SCREEN_WIDTH = 900;
+static const int TARGETFPS = 12;
+
+static Grid grid = Grid(SCREEN_WIDTH, SCREEN_HEIGHT, cellSize);
 
 
 //------------------------------------------------------------------------------------
@@ -79,6 +85,8 @@ void UpdateGame() {
 void RenderGame() {
     BeginDrawing();
         ClearBackground(gray);
+
+        grid.Draw();
 
         DrawFPS(10, 10);
     EndDrawing();
