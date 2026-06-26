@@ -8,13 +8,14 @@ class Grid {
 private:
     int rows, cols;
     int cellSize;
+    std::vector<std::vector<int>> cells;
+
     // Private functions
+    bool IsWithinBounds(int row, int col);
 
 
 // Public members
 public:
-    std::vector<std::vector<int>> cells;
-
     // Constructor
     Grid(int width, int height, int cellSize):
         rows(width/cellSize), cols(height/cellSize), cellSize(cellSize), cells(rows, std::vector<int>(cols, 0))
@@ -22,12 +23,18 @@ public:
 
     // Public functions
     void Draw();
+    void SetValue(int row, int col, int value);
+    int GetValue(int row, int col);
 };
 
 
 //------------------------------------------------------------------------------------
 // Private members
 //------------------------------------------------------------------------------------
+bool Grid::IsWithinBounds(int row, int col) {
+    if (row < 0 || row >= rows || col < 0 || col >= cols) return false;
+    return true;
+}
 
 
 //------------------------------------------------------------------------------------
@@ -39,4 +46,17 @@ void Grid::Draw() {
         DrawRectangle(col*cellSize, row*cellSize, cellSize-1, cellSize-1, cells[row][col] ? WHITE : BLACK);
     }
     }
+}
+
+
+void Grid::SetValue(int row, int col, int value) {
+    if (IsWithinBounds(row, col) == false) return;
+
+    cells[row][col] = value;
+}
+
+int Grid::GetValue(int row, int col) {
+    if (IsWithinBounds(row, col) == false) return 0;
+
+    return cells[row][col];
 }

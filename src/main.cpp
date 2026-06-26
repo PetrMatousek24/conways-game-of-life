@@ -1,4 +1,6 @@
 #include <raylib.h>
+#include <vector>
+#include <iostream>
 
 #include "resources/grid.hpp"
 
@@ -23,6 +25,16 @@ static const int SCREEN_WIDTH = 900;
 static const int TARGETFPS = 12;
 
 static Grid grid = Grid(SCREEN_WIDTH, SCREEN_HEIGHT, cellSize);
+static std::vector<Vector2> cellOffsets = {
+    {-1, -1},
+    {-1, 0},
+    {-1, 1},
+    {0, -1},
+    {0, 1},
+    {1, -1},
+    {1, 0},
+    {1, 1},
+};
 
 
 //------------------------------------------------------------------------------------
@@ -32,6 +44,8 @@ static void InitGame();
 static void UpdateGame();
 static void RenderGame();
 static void UnloadGame();
+
+static int CountLiveNeighbors(int row, int col);
 
 
 //------------------------------------------------------------------------------------
@@ -67,11 +81,18 @@ int main()
 
 
 //------------------------------------------------------------------------------------
-// Functions definitions
+// Game modules definitions
 //------------------------------------------------------------------------------------
 // Initialize values before the game starts
 void InitGame() {
+    grid.SetValue(3, 3, 1);
+    grid.SetValue(4, 4, 1);
+    grid.SetValue(4, 5, 1);
+    grid.SetValue(3, 5, 1);
+    grid.SetValue(2, 5, 1);
     
+    std::cout << CountLiveNeighbors(2, 5) << std::endl;
+    std::cout << CountLiveNeighbors(3, 4) << std::endl;
 }
 
 
@@ -96,4 +117,21 @@ void RenderGame() {
 // Unload game assets at the end of the game
 void UnloadGame() {
 
+}
+
+
+//------------------------------------------------------------------------------------
+// Helper modules definitions
+//------------------------------------------------------------------------------------
+int CountLiveNeighbors(int row, int col) {
+    int liveNeighbors = 0;
+
+    for (Vector2 cellOffset : cellOffsets) {
+        int rowOffset = row + cellOffset.x;
+        int colOffset = col + cellOffset.y;
+
+        if (grid.GetValue(rowOffset, colOffset) == 1) liveNeighbors++;
+    }
+
+    return liveNeighbors;
 }
