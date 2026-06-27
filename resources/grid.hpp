@@ -8,9 +8,11 @@ class Grid {
 private:
     int rows, cols;
     int cellSize;
+    int iteration;
 
     std::vector<std::vector<int>> cells;
     std::vector<std::vector<int>> nextSimulation;
+    std::vector<std::vector<int>> originalCells;
 
     // Private functions
     bool IsWithinBounds(int row, int col);
@@ -20,15 +22,27 @@ private:
 public:
     // Constructor
     Grid(int width, int height, int cellSize):
-        rows(width/cellSize), cols(height/cellSize), cellSize(cellSize), cells(rows, std::vector<int>(cols, 0)), nextSimulation(rows, std::vector<int>(cols, 0))
+        rows(width/cellSize), 
+        cols(height/cellSize), 
+        cellSize(cellSize), 
+        iteration(0),
+        cells(rows, std::vector<int>(cols, 0)), 
+        nextSimulation(rows, std::vector<int>(cols, 0)), 
+        originalCells(rows, std::vector<int>(cols, 0))
     {}
 
     // Public functions
     void Draw();
+
     void SetValue(int row, int col, int value);
     int GetValue(int row, int col);
+
     void SetSimulationValue(int row, int col, int value);
     void UpdateSimulation();
+
+    void SetGridBackToOrigin();
+    void UpdateIteration(bool reset = false);
+
     int GetTotalRows();
     int GetTotalCols();
 };
@@ -76,6 +90,21 @@ void Grid::SetSimulationValue(int row, int col, int value) {
 
 void Grid::UpdateSimulation() {
     cells = nextSimulation;
+
+    if (iteration == 0) originalCells = cells;
+    UpdateIteration();
+}
+
+
+void Grid::SetGridBackToOrigin() {
+    cells = originalCells;
+    UpdateIteration(true);
+}
+
+
+void Grid::UpdateIteration(bool reset) {
+    if (reset == false) iteration++;
+    else iteration = 0;
 }
 
 

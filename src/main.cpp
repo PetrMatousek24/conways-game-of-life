@@ -15,6 +15,9 @@
 #define gray        (Color){32, 32, 32, 255}
 
 #define cellSize    25 // pixels
+#define GAME_SPEED  0.2 // a simulation per x seconds
+#define FAST_SPEED  GAME_SPEED/2 
+#define SLOW_SPEED  GAME_SPEED*2
 
 
 //------------------------------------------------------------------------------------
@@ -23,9 +26,10 @@
 static const int SCREEN_HEIGHT = 900;
 static const int SCREEN_WIDTH = 900;
 static const int TARGETFPS = 60;
-static int gameSpeed = 0.2; // a simulation per x seconds
+static float gameSpeed = GAME_SPEED; // a variable
 
-static bool running = false;
+static bool running = true;
+static bool showKeybinds = true;
 
 static Grid grid = Grid(SCREEN_WIDTH, SCREEN_HEIGHT, cellSize);
 static std::vector<Vector2> cellOffsets = {
@@ -49,6 +53,9 @@ static void InitGame();
 static void UpdateGame();
 static void RenderGame();
 static void UnloadGame();
+
+static void DrawKeybindsText();
+static void HandleInput();
 
 static int CountLiveNeighbors(int row, int col);
 static void RunSimulation();
@@ -103,7 +110,9 @@ void InitGame() {
 
 // Core game logic in the game loop
 void UpdateGame() {
-    if (HasIntervalPassed(gameSpeed)) {
+    HandleInput();
+
+    if (HasIntervalPassed(gameSpeed) && running) {
         RunSimulation();
     }
 }
@@ -116,6 +125,8 @@ void RenderGame() {
 
         grid.Draw();
 
+        DrawKeybindsText();
+
         DrawFPS(10, 10);
     EndDrawing();
 }
@@ -123,13 +134,49 @@ void RenderGame() {
 
 // Unload game assets at the end of the game
 void UnloadGame() {
-
 }
 
 
 //------------------------------------------------------------------------------------
 // Helper modules definitions
 //------------------------------------------------------------------------------------
+void DrawKeybindsText() {
+    if (showKeybinds == false) return;
+
+    DrawText("space - pause and run", 40, 40, 30, GREEN);
+    DrawText("R - reset", 40, 80, 30, GREEN);
+    DrawText("Left arrow - slow down", 40, 120, 30, GREEN);
+    DrawText("Right arrow - speed up", 40, 160, 30, GREEN);
+    DrawText("K = show keybinds", 40, 200, 30, GREEN);
+}
+
+
+void HandleInput() {
+    int keyPressed = GetKeyPressed();
+
+    switch (keyPressed) {
+    case KEY_SPACE:
+        running ? running = false : running = true;
+        break;
+    case KEY_K:
+        showKeybinds ? showKeybinds = false : showKeybinds = true;
+        break;
+    case KEY_R:
+        grid.SetGridBackToOrigin();
+        running = false;
+        break;
+    
+    default:
+        break;
+    }
+
+
+    if (IsKeyDown(KEY_RIGHT)) gameSpeed = FAST_SPEED;
+    else if (IsKeyDown(KEY_LEFT)) gameSpeed = SLOW_SPEED;
+    else gameSpeed = GAME_SPEED;
+}
+
+
 int CountLiveNeighbors(int row, int col) {
     int liveNeighbors = 0;
 
