@@ -8,7 +8,9 @@ class Grid {
 private:
     int rows, cols;
     int cellSize;
+
     std::vector<std::vector<int>> cells;
+    std::vector<std::vector<int>> nextSimulation;
 
     // Private functions
     bool IsWithinBounds(int row, int col);
@@ -18,13 +20,17 @@ private:
 public:
     // Constructor
     Grid(int width, int height, int cellSize):
-        rows(width/cellSize), cols(height/cellSize), cellSize(cellSize), cells(rows, std::vector<int>(cols, 0))
+        rows(width/cellSize), cols(height/cellSize), cellSize(cellSize), cells(rows, std::vector<int>(cols, 0)), nextSimulation(rows, std::vector<int>(cols, 0))
     {}
 
     // Public functions
     void Draw();
     void SetValue(int row, int col, int value);
     int GetValue(int row, int col);
+    void SetSimulationValue(int row, int col, int value);
+    void UpdateSimulation();
+    int GetTotalRows();
+    int GetTotalCols();
 };
 
 
@@ -59,4 +65,24 @@ int Grid::GetValue(int row, int col) {
     if (IsWithinBounds(row, col) == false) return 0;
 
     return cells[row][col];
+}
+
+
+void Grid::SetSimulationValue(int row, int col, int value) {
+    if (IsWithinBounds(row, col) == false) return;
+
+    nextSimulation[row][col] = value;
+}
+
+void Grid::UpdateSimulation() {
+    cells = nextSimulation;
+}
+
+
+int Grid::GetTotalRows() {
+    return rows;
+}
+
+int Grid::GetTotalCols() {
+    return cols;
 }

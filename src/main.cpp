@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------------
 #define gray        (Color){32, 32, 32, 255}
 
-#define cellSize    25
+#define cellSize    25 // pixels
 
 
 //------------------------------------------------------------------------------------
@@ -22,7 +22,10 @@
 //------------------------------------------------------------------------------------
 static const int SCREEN_HEIGHT = 900;
 static const int SCREEN_WIDTH = 900;
-static const int TARGETFPS = 12;
+static const int TARGETFPS = 60;
+static int gameSpeed = 0.2; // a simulation per x seconds
+
+static bool running = false;
 
 static Grid grid = Grid(SCREEN_WIDTH, SCREEN_HEIGHT, cellSize);
 static std::vector<Vector2> cellOffsets = {
@@ -36,6 +39,8 @@ static std::vector<Vector2> cellOffsets = {
     {1, 1},
 };
 
+double lastUpdateTime = 0;
+
 
 //------------------------------------------------------------------------------------
 // Functions declarations
@@ -46,6 +51,9 @@ static void RenderGame();
 static void UnloadGame();
 
 static int CountLiveNeighbors(int row, int col);
+static void RunSimulation();
+
+static bool HasIntervalPassed(double interval);
 
 
 //------------------------------------------------------------------------------------
@@ -90,15 +98,14 @@ void InitGame() {
     grid.SetValue(4, 5, 1);
     grid.SetValue(3, 5, 1);
     grid.SetValue(2, 5, 1);
-    
-    std::cout << CountLiveNeighbors(2, 5) << std::endl;
-    std::cout << CountLiveNeighbors(3, 4) << std::endl;
 }
 
 
 // Core game logic in the game loop
 void UpdateGame() {
-    
+    if (HasIntervalPassed(gameSpeed)) {
+        RunSimulation();
+    }
 }
 
 
@@ -127,11 +134,48 @@ int CountLiveNeighbors(int row, int col) {
     int liveNeighbors = 0;
 
     for (Vector2 cellOffset : cellOffsets) {
-        int rowOffset = row + cellOffset.x;
-        int colOffset = col + cellOffset.y;
+        int rowOffset = (row + (int)cellOffset.x + grid.GetTotalRows()) % grid.GetTotalRows();
+        int colOffset = (col + (int)cellOffset.y + grid.GetTotalCols()) % grid.GetTotalCols();
 
         if (grid.GetValue(rowOffset, colOffset) == 1) liveNeighbors++;
     }
 
     return liveNeighbors;
+}
+
+
+void RunSimulation() {
+    for (int row = 0; row < grid.GetTotalRows(); row++) {
+    for (int col = 0; col < grid.GetTotalCols(); col++) {
+
+        int cell = grid.GetValue(row, col);
+        int liveNeighbors = CountLiveNeighbors(row, col);
+
+        if (cell == 1) { // alive
+            if (liveNeighbors < 2 || liveNeighbors > 3) {
+                grid.SetSimulationValue(row, col, 0); // dies
+            } else {
+                grid.SetSimulationValue(row, col, 1); // lives
+            }
+        } else if (cell == 0) { // dead
+            if (liveNeighbors == 3) {
+                grid.SetSimulationValue(row, col, 1); // resurects
+            } else {
+                grid.SetSimulationValue(row, col, 0); // stays dead
+            }
+        }
+
+    }
+    }
+
+    grid.UpdateSimulation();
+}
+
+bool HasIntervalPassed(double interval) {
+    double currentTime = GetTime();
+    if (currentTime - lastUpdateTime >= interval) {
+        lastUpdateTime = currentTime;
+        return true;
+    }
+    return false;
 }
