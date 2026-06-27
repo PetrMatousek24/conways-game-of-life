@@ -22,8 +22,8 @@ private:
 public:
     // Constructor
     Grid(int width, int height, int cellSize):
-        rows(width/cellSize), 
-        cols(height/cellSize), 
+        rows(height/cellSize), 
+        cols(width/cellSize), 
         cellSize(cellSize), 
         iteration(0),
         cells(rows, std::vector<int>(cols, 0)), 
@@ -36,6 +36,7 @@ public:
 
     void SetValue(int row, int col, int value);
     int GetValue(int row, int col);
+    void ClearGrid();
 
     void SetSimulationValue(int row, int col, int value);
     void UpdateSimulation();
@@ -81,6 +82,14 @@ int Grid::GetValue(int row, int col) {
     return cells[row][col];
 }
 
+void Grid::ClearGrid() {
+    for (int row = 0; row < rows; row++) {
+    for (int col = 0; col < cols; col++) {
+        cells[row][col] = 0;
+    }
+    }
+}
+
 
 void Grid::SetSimulationValue(int row, int col, int value) {
     if (IsWithinBounds(row, col) == false) return;
@@ -89,9 +98,9 @@ void Grid::SetSimulationValue(int row, int col, int value) {
 }
 
 void Grid::UpdateSimulation() {
-    cells = nextSimulation;
-
     if (iteration == 0) originalCells = cells;
+
+    cells = nextSimulation;
     UpdateIteration();
 }
 

@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <vector>
 #include <iostream>
+#include <math.h>
 
 #include "resources/grid.hpp"
 
@@ -24,11 +25,11 @@
 // Global Variables Declaration
 //------------------------------------------------------------------------------------
 static const int SCREEN_HEIGHT = 900;
-static const int SCREEN_WIDTH = 900;
+static const int SCREEN_WIDTH = 1500;
 static const int TARGETFPS = 60;
 static float gameSpeed = GAME_SPEED; // a variable
 
-static bool running = true;
+static bool running = false;
 static bool showKeybinds = true;
 
 static Grid grid = Grid(SCREEN_WIDTH, SCREEN_HEIGHT, cellSize);
@@ -56,6 +57,8 @@ static void UnloadGame();
 
 static void DrawKeybindsText();
 static void HandleInput();
+static void HandleKeyInput();
+static void HandleMouseInput();
 
 static int CountLiveNeighbors(int row, int col);
 static void RunSimulation();
@@ -100,11 +103,11 @@ int main()
 //------------------------------------------------------------------------------------
 // Initialize values before the game starts
 void InitGame() {
-    grid.SetValue(3, 3, 1);
-    grid.SetValue(4, 4, 1);
-    grid.SetValue(4, 5, 1);
-    grid.SetValue(3, 5, 1);
-    grid.SetValue(2, 5, 1);
+    grid.SetValue(16, 16, 1);
+    grid.SetValue(17, 17, 1);
+    grid.SetValue(17, 18, 1);
+    grid.SetValue(16, 18, 1);
+    grid.SetValue(15, 18, 1);
 }
 
 
@@ -143,15 +146,29 @@ void UnloadGame() {
 void DrawKeybindsText() {
     if (showKeybinds == false) return;
 
-    DrawText("space - pause and run", 40, 40, 30, GREEN);
-    DrawText("R - reset", 40, 80, 30, GREEN);
-    DrawText("Left arrow - slow down", 40, 120, 30, GREEN);
-    DrawText("Right arrow - speed up", 40, 160, 30, GREEN);
-    DrawText("K = show keybinds", 40, 200, 30, GREEN);
+    Color color = GREEN;
+    int fontSize = 30;
+    int x = 40;
+
+    int y = 1;
+        DrawText("Space - pause and run", x, y*40, fontSize, color); y++;
+        DrawText("R - reset", x, y*40, fontSize, color); y++;
+        DrawText("K - show keybinds", x, y*40, fontSize, color); y++;
+        DrawText("C - clear", x, y*40, 30, color); y++;
+        DrawText("Left arrow - slow down", x, y*40, fontSize, color); y++;
+        DrawText("Right arrow - speed up", x, y*40, fontSize, color); y++;
+        DrawText("Left click - draw a live cell", x, y*40, fontSize, color); y++;
+        DrawText("Right click - draw a dead cell", x, y*40, fontSize, color);
+    
 }
 
 
 void HandleInput() {
+    HandleKeyInput();
+    HandleMouseInput();
+}
+
+void HandleKeyInput() {
     int keyPressed = GetKeyPressed();
 
     switch (keyPressed) {
@@ -165,6 +182,10 @@ void HandleInput() {
         grid.SetGridBackToOrigin();
         running = false;
         break;
+    case KEY_C:
+        grid.ClearGrid();
+        running = false;
+        break;
     
     default:
         break;
@@ -174,6 +195,18 @@ void HandleInput() {
     if (IsKeyDown(KEY_RIGHT)) gameSpeed = FAST_SPEED;
     else if (IsKeyDown(KEY_LEFT)) gameSpeed = SLOW_SPEED;
     else gameSpeed = GAME_SPEED;
+}
+
+void HandleMouseInput() {
+    if (running) return;
+    if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) return;
+
+
+    int x = (int) std::floor(GetMouseX() / cellSize);
+    int y = (int) std::floor(GetMouseY() / cellSize);
+
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) grid.SetValue(y, x, 1);
+    else if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) grid.SetValue(y, x, 0);
 }
 
 
