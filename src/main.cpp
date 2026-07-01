@@ -184,6 +184,8 @@ void HandleKeyInput() {
         break;
     case KEY_C:
         grid.ClearGrid();
+        grid.SetOriginalGrid();
+        grid.UpdateIteration(true);
         running = false;
         break;
     
@@ -225,6 +227,8 @@ int CountLiveNeighbors(int row, int col) {
 
 
 void RunSimulation() {
+    if (grid.GetIteration() == 0) grid.SetOriginalGrid();
+
     for (int row = 0; row < grid.GetTotalRows(); row++) {
     for (int col = 0; col < grid.GetTotalCols(); col++) {
 
@@ -249,6 +253,7 @@ void RunSimulation() {
     }
 
     grid.UpdateSimulation();
+    grid.UpdateIteration();
 }
 
 bool HasIntervalPassed(double interval) {

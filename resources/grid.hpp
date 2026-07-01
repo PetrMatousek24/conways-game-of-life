@@ -42,7 +42,9 @@ public:
     void UpdateSimulation();
 
     void SetGridBackToOrigin();
+    void SetOriginalGrid();
     void UpdateIteration(bool reset = false);
+    int GetIteration();
 
     int GetTotalRows();
     int GetTotalCols();
@@ -98,10 +100,7 @@ void Grid::SetSimulationValue(int row, int col, int value) {
 }
 
 void Grid::UpdateSimulation() {
-    if (iteration == 0) originalCells = cells;
-
     cells = nextSimulation;
-    UpdateIteration();
 }
 
 
@@ -110,11 +109,17 @@ void Grid::SetGridBackToOrigin() {
     UpdateIteration(true);
 }
 
+void Grid::SetOriginalGrid() {
+    originalCells = cells;
+}
+
 
 void Grid::UpdateIteration(bool reset) {
     if (reset == false) iteration++;
     else iteration = 0;
 }
+
+int Grid::GetIteration() {return iteration;}
 
 
 int Grid::GetTotalRows() {
